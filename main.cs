@@ -18,6 +18,8 @@ namespace BrightExistence.SimpleTools
 		{
             // Announce ourselves.
             Pipliz.Log.Write("Mod {0} loading.", MyHandle.MyMod.Data.NAMESPACE);
+            Pipliz.Log.Write("Built using SimpleTools version {0}", Variables.toolkitVersion);
+            Pipliz.Log.Write("Thanks and credit to Pandaros for the localization routines.");
 
             // Get a properly formatted version of our mod directory and subdirectories.
             Variables.ModGamedataDirectory = Path.GetDirectoryName(path).Replace("\\", "/");
