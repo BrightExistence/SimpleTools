@@ -2,7 +2,7 @@
 
 namespace MyHandle.MyMod
 {
-    public static class Data
+    public class Data
     {
         //----------------- CONSTANTS ------------------
         public const string NAMESPACE = "MyHandle.MyMod";
