@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace BrightExistence.SimpleTools
 {
@@ -14,12 +14,12 @@ namespace BrightExistence.SimpleTools
         /// <summary>
         /// Name of texture, excluding any prefixes. Ex: myTexture NOT myHandle.myMod.myTexture
         /// </summary>
-        public string Name { get; protected set; }
+        public string Name = "MyTexture";
 
         /// <summary>
         /// Prefix used to generate ID. Ex: myHandle.myMod
         /// </summary>
-        public string NAMESPACE { get; protected set; }
+        protected string NAMESPACE;
 
         public string AlbedoPath;
 
@@ -45,7 +45,7 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         /// <param name="strName">Name of texture, excluding any prefixes. Ex: myTexture NOT myHandle.myMod.myTexture</param>
         /// <param name="strNAMESPACE">Prefix used to generate ID. Ex: myHandle.myMod</param>
-        public SimpleTexture(string strName, string strNAMESPACE)
+        public SimpleTexture(string strName, string strNAMESPACE = MyHandle.MyMod.Data.NAMESPACE)
         {
             Name = (strName == null || strName.Length < 1) ? "NewTexture" : strName;
             NAMESPACE = strNAMESPACE == null ? "" : strNAMESPACE;
