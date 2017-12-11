@@ -1,301 +1,339 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using Pipliz.APIProvider.Science;
-using Server.Science;
 
-namespace BrightExistence.SimpleTools
+namespace MyHandle.SimpleTools
 {
-    public static class ResearchHelper
+    public static class RecipeHelper
     {
+        /// <summary>
+        /// Attempts to remove an existing recipe from the server's database.
+        /// </summary>
+        /// <param name="recName">Name of recipe.</param>
+        /// <returns>True if recipe was removed, False if recipe was not found or removal was not successful.</returns>
+        public static bool tryRemoveRecipe (string recName)
+        {
+            try
+            {
+                if (RecipeStorage.TryGetRecipe(recName, out Recipe Rec))
+                {
+                    Pipliz.Log.Write("{0}: Recipe {1} found, attempting to remove.", MyHandle.MyMod.Data.NAMESPACE, Rec.Name);
+                    RecipeStorage.Recipes.Remove(recName);
 
+                    if (!RecipeStorage.TryGetRecipe(recName, out Recipe Rec2))
+                    {
+                        Pipliz.Log.Write("{0}: Recipe {1} successfully removed", MyHandle.MyMod.Data.NAMESPACE, Rec.Name);
+                        return true;
+                    }
+                    else
+                    {
+                        Pipliz.Log.Write("{0}: Recipe {1} removal failed for unknown reason.", MyHandle.MyMod.Data.NAMESPACE, Rec.Name);
+                        return false;
+                    }
+                }
+                else
+                {
+                    Pipliz.Log.Write("{0}: Recipe {1} not found.", MyHandle.MyMod.Data.NAMESPACE, recName);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Pipliz.Log.Write("{0}: tryRemoveRecipe has reached an exception.");
+                return false;
+            }
+        }
     }
 
-    /// <summary>
-    /// Custom IReasearchable Implimentation which handles custom research as well as replacement of vanilla research.
-    /// </summary>
-    public class SimpleResearchable : IResearchable
+    public class SimpleRecipe
     {
         /// <summary>
-        /// Internal storage of constructor provided mod namespace.
+        /// Name of Recipe, excluding prefixs. Ex: myRecipe instead of myHandle.myMod.myRecipe
         /// </summary>
-        protected string NAMESPACE;
+        public string Name = "New Recipe";
 
         /// <summary>
-        /// Name of researchable omitting prefixes. ex: 'MyItem' NOT 'MyHandle.MyMod.MyItem'
+        /// An InventoryItem list containing the items the user recieves when this recipe is completed. May be ignored if the constructor
+        /// which takes a SimpleItem object is used.
         /// </summary>
-        public string Name = "New Researchable";
+        protected List<InventoryItem> realResults = new List<InventoryItem>();
 
         /// <summary>
-        /// Specifies a string key of a vanilla research which should be removed and replaced with this one if it exists.
+        /// Items references are added in the form of shells so they can be evaluated at the right time into actual InventoryItem objects.
         /// </summary>
-        public string Replaces { get; set; }
+        public List<ItemShell> Results = new List<ItemShell>();
 
         /// <summary>
-        /// Path to the icon file.
+        /// Items references are added in the form of shells so they can be evaluated at the right time into actual InventoryItem objects.
         /// </summary>
-        public string Icon = "";
+        public List<ItemShell> Requirements = new List<ItemShell>();
 
         /// <summary>
-        /// How many times must the recipe be 'crafted' to be completed.
+        /// An InventoryItem list containing the items necessary to complete this recipe.
         /// </summary>
-        public int IterationCount = 1;
+        protected List<InventoryItem> realRequirements = new List<InventoryItem>();
 
         /// <summary>
-        /// String list of other research id's which must be completed first.
+        /// The limitType, a.k.a. NPCTypeKey is essentially a group of recipes associated with a block and an NPC. Ex: pipliz.crafter
         /// </summary>
-        public List<string> Dependencies = new List<string>();
+        public string limitType { get; set; }
 
         /// <summary>
-        /// Internal list of InventoryItem objects required. Populated in the Register() method.
+        /// The default limit at which an NPC will stop crafting this recipe.
         /// </summary>
-        protected List<InventoryItem> Requirements = new List<InventoryItem>();
+        public int defaultLimit = 1;
 
         /// <summary>
-        /// List of ItemShell objects which must be turned into InventoryItems by the Register() method.
+        /// The default priority of this recipe vs other recipes of the same limitType when crafted by an NPC.
         /// </summary>
-        public List<ItemShell> IterationRequirements = new List<ItemShell>();
+        public int defaultPriority = 0;
 
         /// <summary>
-        /// List of Unlock objects describing specific recipies which will be enable automatically when this researchable is completed in-game.
+        /// True if this recipe must be researched to be available, otherwise false.
         /// </summary>
-        public List<Unlock> Unlocks = new List<Unlock>();
+        public bool isOptional = false;
 
         /// <summary>
-        /// Set to false in order to disable auto-registration of this Research.
+        /// Set to true if you want addRecipeToLimitType() to create a copy of this recipe and add it to the list of recipes the players
+        /// themselves can craft.
+        /// </summary>
+        public bool userCraftable = false;
+
+        /// <summary>
+        /// Names what recipes, if any, this recipe is intended to replace. The named recipes will be deleted from the server's
+        /// database before this recipe is added. Use when replacing vanilla recipes.
+        /// </summary>
+        public List<string> Replaces = new List<string>();
+
+        /// <summary>
+        /// Set to false if you want this recipe, and SimpleResearchable items that know about and depend upon it, to NOT be registered.
         /// </summary>
         public bool enabled = true;
 
         /// <summary>
-        /// Constructor
+        /// Automatically generated recipe key with limit type prefix. Ex: 'recipeLimit.myRecipe'. To get the player
+        /// crafted recipe key, use "player." + Name
         /// </summary>
-        /// <param name="strName">Name of research excluding prefixes. Ex: MyResearch NOT MyHandle.MyMod.MyResearch</param>
-        /// <param name="strNAMESPACE">Prefix of research. Ex: 'MyHandle.MyMod'. Will use mod namespace if not provided.</param>
-        public SimpleResearchable(string strName, string strNAMESPACE = MyHandle.MyMod.Data.NAMESPACE)
+        public string fullName
         {
-            if (strName != null && strName.Length > 0) Name = strName;
-            NAMESPACE = strNAMESPACE;
-            Variables.Researchables.Add(this);
-            Pipliz.Log.Write("{0}: Initialized Researchable {1} (it is not yet registered.)", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+            get
+            {
+                if (limitType != null) return limitType + "." + Name;
+                else return Name;
+            }
         }
 
         /// <summary>
-        /// Registers this research with the server.
+        /// Constructor
         /// </summary>
-        public void Register ()
+        /// <param name="strName">Name of recipe excluding any prefixes. Ex: myRecipe NOT myHandle.myMod.myRecipe</param>
+        /// <param name="strLimitType">The limitType, a.k.a. NPCTypeKey is essentially a group of recipes associated with a block and an NPC. Ex: pipliz.crafter</param>
+        public SimpleRecipe(string strName, string strLimitType = null)
         {
-            if (enabled)
-            {
-                // Convert shell items to real items.
-                foreach (ItemShell I in IterationRequirements)
-                {
-                    if (Variables.itemsMaster == null)
-                    {
-                        Pipliz.Log.WriteError("{0} CRITICAL ERROR: SimpleResearchable {1} cannot register properly because 'Variables.itemsMaster' is still null.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
-                    }
-                    else
-                    {
-                        Pipliz.Log.Write("{0}: Converting shell references in researchable {1} to InventoryItem objects.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
-                        if (Variables.itemsMaster.ContainsKey(I.strItemkey))
-                        {
-                            Requirements.Add(new InventoryItem(I.strItemkey, I.intAmount));
-                        }
-                        else
-                        {
-                            Pipliz.Log.Write("{0} Researchable {1} was given an item key '{2}' as an iteration requirement which was not found by the server.", MyHandle.MyMod.Data.NAMESPACE, this.Name, I.strItemkey);
-                        }
-                    }
-                }
+            this.Name = strName == null ? MyHandle.MyMod.Data.NAMESPACE + "NewRecipe" : strName;
+            this.limitType = strLimitType;
 
-                ScienceManager.RegisterResearchable(this);
-                Pipliz.Log.Write("{0}: Researchable {1} has been registered with the ScienceManager.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Initialized Recipe {1} (it is not yet registered.)", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+            try
+            {
+                if (!Variables.Recipes.Contains(this)) Variables.Recipes.Add(this);
+            }
+            catch (Exception)
+            {
+                Pipliz.Log.Write("{0} : WARNING : Recipe {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+            }
+
+            if (strLimitType == null) userCraftable = true;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="Item">A SimpleItem object holding a type which is the intended result of this recipe.</param>
+        /// <param name="strLimitType">The limitType, a.k.a. NPCTypeKey is essentially a group of recipes associated with a block and an NPC. Ex: pipliz.crafter</param>
+        public SimpleRecipe(SimpleItem Item, string strLimitType = null)
+        {
+            if (Item == null || Item.Name == null || Item.Name.Length < 1)
+            {
+                throw new ArgumentException(MyHandle.MyMod.Data.NAMESPACE + ": Simple recipe cannot initialize when given a null Item or an Item with a Name of less than one character.");
             }
             else
             {
-                Pipliz.Log.Write("{0}: Research {1} has been disabled, and will NOT be registered.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+                limitType = strLimitType;
+                this.Name = Item.Name;
+                addResult(Item);
+
+                Pipliz.Log.Write("{0}: Initialized Recipe {1} (it is not yet registered.)", MyHandle.MyMod.Data.NAMESPACE, Name);
+                try
+                {
+                    if (!Variables.Recipes.Contains(this)) Variables.Recipes.Add(this);
+                }
+                catch (Exception)
+                {
+                    Pipliz.Log.Write("{0} : WARNING : Recipe {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+                }
+
+                if (strLimitType == null) userCraftable = true;
             }
         }
 
         /// <summary>
-        /// Add an item required for each research 'crafting' cycle.
+        /// Adds an item required by this recipe using a string key.
         /// </summary>
-        /// <param name="itemKey">Valid item key as string.</param>
-        /// <param name="amount">Number of item required.</param>
-        public void addRequirement(string itemKey, int amount = 1)
+        /// <param name="itemKey">a valid (string) item key</param>
+        /// <param name="amount">number of specified item that is required</param>
+        public void addRequirement (string itemKey, int amount = 1)
         {
             if (itemKey == null || itemKey.Length < 1)
             {
-                Pipliz.Log.Write("{0}: Research {1} was given a null or invalid item key.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addRequirement() method was called but was given a null or invalid item key.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
             }
             else
             {
-                IterationRequirements.Add(new ItemShell(itemKey, amount));
+                Requirements.Add(new ItemShell(itemKey, amount));
             }
         }
 
         /// <summary>
-        /// Add an item required for each research 'crafting' cycle.
+        /// Adds an item required by this recipe using a valid SimpleItem reference.
         /// </summary>
-        /// <param name="requiredItem">Valid item as SimpleItem. </param>
-        /// <param name="amount">Number of item required.</param>
-        public void addRequirement(SimpleItem requiredItem, int amount = 1)
+        /// <param name="requiredItem">Instantiated SimpleItem object.</param>
+        /// <param name="amount">Number of items required.</param>
+        public void addRequirement (SimpleItem requiredItem, int amount = 1)
         {
-            if (requiredItem == null || requiredItem.Name.Length < 1)
+            if (requiredItem != null && requiredItem.Name.Length > 0)
             {
-                Pipliz.Log.Write("{0}: Research {1} was given a null or invalid SimpleItem object.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
-            }
-            else
-            {
-                IterationRequirements.Add(new ItemShell(requiredItem.ID, amount));
+                Requirements.Add(new ItemShell(requiredItem.ID, amount));
                 if (!requiredItem.enabled) this.enabled = false;
             }
-        }
-
-        /// <summary>
-        /// This research's identifying key. Used by ScienceManager.
-        /// </summary>
-        /// <returns>This research's identifying key as string.</returns>
-        public string GetKey()
-        {
-            if (Replaces == null) return NAMESPACE + ".Research." + Name;
-            else return Replaces;
-        }
-
-        /// <summary>
-        /// This research's icon path. Used by ScienceManager.
-        /// </summary>
-        /// <returns>This research's icon path as string.</returns>
-        public string GetIcon()
-        {
-            return Icon;
-        }
-
-        /// <summary>
-        /// Research which must be completed before this one becomes available.
-        /// </summary>
-        /// <returns>This research's dependencies as string list.</returns>
-        public IList<string> GetDependencies()
-        {
-            return Dependencies;
-        }
-
-        /// <summary>
-        /// This research's requirements. Used by ScienceManager.
-        /// </summary>
-        /// <returns>This research's requirements as InventoryItem list. Populated by the Register() method.</returns>
-        public IList<InventoryItem> GetScienceRequirements()
-        {
-            return Requirements;
-        }
-
-        /// <summary>
-        /// Number of times this recipe must be 'crafted' to be completed. Used by ScienceManager.
-        /// </summary>
-        /// <returns>This research's dependencies as string list.</returns>
-        public int GetResearchIterationCount()
-        {
-            return IterationCount;
-        }
-
-        /// <summary>
-        /// Called when this researchable is completed by a player.
-        /// </summary>
-        /// <param name="manager">Player's individual science manager.</param>
-        /// <param name="reason">Will equal EResearchCompletionReason.ProgressCompleted when this research is completed by a player.</param>
-        public void OnResearchComplete(ScienceManagerPlayer manager, EResearchCompletionReason reason)
-        {
-            if (reason == EResearchCompletionReason.ProgressCompleted)
+            else
             {
-                foreach (Unlock U in Unlocks)
-                {
-                    if (U.limitType != null)
-                    {
-                        RecipeStorage.GetPlayerStorage(manager.Player).SetRecipeAvailability(U.NPCCrafted, true, U.limitType);
-                    }
-                    if (U.PlayerCrafted != null)
-                    {
-                        RecipePlayer.UnlockOptionalRecipe(manager.Player, U.PlayerCrafted);
-                    }
-                }
+                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addRequirement() method was called but was given a null or invalid SimpleItem object.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
             }
         }
 
         /// <summary>
-        /// Utility class for describing what recipes this research unlocks when it is completed.
+        /// Adds an item that results from this recipe by a string key.
         /// </summary>
-        public class Unlock
+        /// <param name="itemKey">a valid (string) item key</param>
+        /// <param name="amount">number of specified item that results</param>
+        public void addResult (string itemKey, int amount = 1)
         {
-            /// <summary>
-            /// Recipe name excluding prefix. Ex: SpecifiedRecipe NOT Handle.LimitType.Recipe
-            /// </summary>
-            public string recipeName = "";
-
-            /// <summary>
-            /// Generated by constructor. A recipe key as it would have been added to a player's crafting recipes by SimpleItem. May be null.
-            /// </summary>
-            public string PlayerCrafted = null;
-
-            /// <summary>
-            /// Generated by constructor. A recipe key as it would have been added to a specified limit type by SimpleRecipe. May be null.
-            /// </summary>
-            public string NPCCrafted = null;
-
-            /// <summary>
-            /// Limit type to which recipe would have been added by SimpleRecipe.
-            /// </summary>
-            public string limitType = null;
-
-
-            /// <summary>
-            /// Set to false to disable auto registration for any recipes which are generated by a SimpleRecipe object which is passed this object.
-            /// </summary>
-            public bool enabled = true;
-
-            /// <summary>
-            /// Constructor
-            /// </summary>
-            /// <param name="strRecipeName">Name of recipe excluding prefix. Ex: TargetedRecipe NOT Handle.LimitType.TargetedRecipe OR Player.TargetedRecipe</param>
-            /// <param name="strLimitType">The limit type to which the recipe was added by SimpleRecipe. My be left null.</param>
-            public Unlock(string strRecipeName, string strLimitType = null)
+            if (itemKey == null || itemKey.Length < 1)
             {
-                if (strRecipeName != null)
+                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addResult() method was called but was given a null or invalid item key.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+            }
+            else
+            {
+                Results.Add(new ItemShell(itemKey, amount));
+            }
+        }
+
+        /// <summary>
+        /// Adds an item required by this recipe using a valid SimpleItem reference.
+        /// </summary>
+        /// <param name="requiredItem">Instantiated SimpleItem object.</param>
+        /// <param name="amount">Number of items required.</param>
+        public void addResult(SimpleItem resultItem, int amount = 1)
+        {
+            if (resultItem != null && resultItem.Name.Length > 0)
+            {
+                Results.Add(new ItemShell(resultItem.ID, amount));
+                if (!resultItem.enabled) this.enabled = false;
+            }
+            else
+            {
+                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addResult() method was called but was given a null or invalid SimpleItem object.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+            }
+        }
+
+        /// <summary>
+        /// Does all the work of adding this recipe to the server's database. Should be called in the AfterItemTypesDefined callback.
+        /// </summary>
+        public void addRecipeToLimitType()
+        {
+            if (enabled)
+            {
+                try
                 {
-                    recipeName = strRecipeName;
-                    if (strLimitType != null)
+                    // First remove any recipes we are replacing.
+                    foreach (string deleteMe in Replaces)
                     {
-                        limitType = strLimitType;
-                        NPCCrafted = strLimitType + "." + strRecipeName;
+                        Pipliz.Log.Write("{0}: Recipe {1} is marked as replacing {2}, attempting to comply.", MyHandle.MyMod.Data.NAMESPACE, this.Name, deleteMe);
+                        RecipeHelper.tryRemoveRecipe(deleteMe);
                     }
-                    else
+
+                    // Convert shell references into actual InventoryItem objects.
+                    foreach (ItemShell I in Results)
                     {
-                        PlayerCrafted = "Player." + strRecipeName;
+                        if (Variables.itemsMaster == null)
+                        {
+                            Pipliz.Log.WriteError("{0}.SimpleRecipe.addRecipeToLimitType() has reached a critical error: 'Variables.itemsMaster' is not yet available. Recipe: {1}", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+                        }
+                        else
+                        {
+                            if (Variables.itemsMaster.ContainsKey(I.strItemkey))
+                            {
+                                realResults.Add(new InventoryItem(I.strItemkey, I.intAmount));
+                            }
+                            else
+                            {
+                                Pipliz.Log.WriteError("{0}: A problem occurred adding recipe RESULT {1} to recipe {2}, the item key was not found.", MyHandle.MyMod.Data.NAMESPACE, I.strItemkey, this.Name);
+                            }
+                        }
+                    }
+                    foreach (ItemShell I in Requirements)
+                    {
+                        if (Variables.itemsMaster == null)
+                        {
+                            Pipliz.Log.WriteError("{0}.SimpleRecipe.addRecipeToLimitType() has reached a critical error: 'Variables.itemsMaster' is not yet available. Recipe: {1}", MyHandle.MyMod.Data.NAMESPACE, this.Name);
+                        }
+                        else
+                        {
+                            if (Variables.itemsMaster.ContainsKey(I.strItemkey))
+                            {
+                                realRequirements.Add(new InventoryItem(I.strItemkey, I.intAmount));
+                            }
+                            else
+                            {
+                                Pipliz.Log.WriteError("{0}: A problem occurred adding recipe REQUIREMENT {1} to recipe {2}, the item key was not found.", MyHandle.MyMod.Data.NAMESPACE, I.strItemkey, this.Name);
+                            }
+                        }
+                    }
+
+                    // Build actual Recipe object.
+                    Recipe thisRecipe = new Recipe(this.fullName, this.realRequirements, this.realResults, this.defaultLimit, this.isOptional, this.defaultPriority);
+
+                    // Commence registering it.
+                    Pipliz.Log.Write("{0}: Attempting to register recipe {1}", MyHandle.MyMod.Data.NAMESPACE, thisRecipe.Name);
+                    if (this.limitType != null)
+                    {
+                        if (isOptional)
+                        {
+                            Pipliz.Log.Write("{0}: Attempting to register optional limit type recipe {1}", MyHandle.MyMod.Data.NAMESPACE, thisRecipe.Name);
+                            RecipeStorage.AddOptionalLimitTypeRecipe(limitType, thisRecipe);
+                        }
+                        else
+                        {
+                            Pipliz.Log.Write("{0}: Attempting to register default limit type recipe {1}", MyHandle.MyMod.Data.NAMESPACE, thisRecipe.Name);
+                            RecipeStorage.AddDefaultLimitTypeRecipe(limitType, thisRecipe);
+                        }
+                    }
+
+                    if (userCraftable)
+                    {
+                        Recipe playerRecipe = new Recipe("player." + this.Name, this.realRequirements, this.realResults, this.defaultLimit, this.isOptional);
+                        Pipliz.Log.Write("{0}: Attempting to register default player type recipe {1}", MyHandle.MyMod.Data.NAMESPACE, playerRecipe.Name);
+                        RecipePlayer.AddDefaultRecipe(playerRecipe);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    throw new ArgumentException("{0}: strRecipeName parameter for Unlock object may not be left null.", MyHandle.MyMod.Data.NAMESPACE);
+                    Pipliz.Log.WriteError("{0}: Error adding recipe: {1}", MyHandle.MyMod.Data.NAMESPACE, ex.Message);
                 }
             }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="unlockMe">A SimpleRecipe object from which to build data.</param>
-            public Unlock(SimpleRecipe unlockMe)
+            else
             {
-                if (unlockMe == null)
-                {
-                    throw new ArgumentException("{0}: Unlock constructor argument unlockMe may not be null.", MyHandle.MyMod.Data.NAMESPACE);
-                }
-                else
-                {
-                    if (unlockMe.limitType != null)
-                    {
-                        this.limitType = unlockMe.limitType;
-                        this.NPCCrafted = unlockMe.limitType + "." + unlockMe.Name;
-                    }
-                    if (unlockMe.userCraftable) PlayerCrafted = "Player." + unlockMe.Name;
-                    if (!unlockMe.enabled) this.enabled = false;
-                }
+                Pipliz.Log.Write("{0}: Recipe {1} has been disabled and will NOT be registered.", MyHandle.MyMod.Data.NAMESPACE, this.Name);
             }
         }
     }
