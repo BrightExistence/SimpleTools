@@ -15,8 +15,8 @@ namespace BrightExistence.SimpleTools
         public static string ResearchablesPath;
         public static Dictionary<string, ItemTypesServer.ItemTypeRaw> itemsMaster;
         protected const int simpleToolsMajor = 0;
-        protected const int simpleToolsMinor = 0;
-        protected const int simpleToolsBuild = 3;
+        protected const int simpleToolsMinor = 1;
+        protected const int simpleToolsBuild = 0;
         public static string toolkitVersion
         {
             get
