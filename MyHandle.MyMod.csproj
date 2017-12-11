@@ -60,16 +60,31 @@
     <Compile Include="Variables.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="localization\en-US\translation.json" />
+    <None Include="localization\en-US\translation.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="modInfo.json" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="icons\" />
-    <Folder Include="jobs\" />
-    <Folder Include="textures\albedo\" />
-    <Folder Include="textures\emissive\" />
-    <Folder Include="textures\height\" />
-    <Folder Include="textures\normal\" />
+    <Content Include="icons\ignorethis.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="jobs\ignorethis.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\albedo\ignorethis.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\emissive\ignorethis.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\height\ignorethis.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\normal\ignorethis.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
