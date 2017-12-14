@@ -16,36 +16,36 @@ namespace BrightExistence.SimpleTools
         {
             if (itemName == null || itemName.Length < 1)
             {
-                Pipliz.Log.WriteError("{0}: tryRemoveItem has been called but was not given a valid item identifier.", BrightExistence.ColonyShop.Data.NAMESPACE);
+                Pipliz.Log.WriteError("{0}: tryRemoveItem has been called but was not given a valid item identifier.", MyMod.Data.NAMESPACE);
                 return false;
             }
             else
             {
                 if (Variables.itemsMaster == null)
                 {
-                    Pipliz.Log.WriteError("{0}: tryRemoveItem was called on {1} before Items master dictionary has been obtained. Cannot complete action.", BrightExistence.ColonyShop.Data.NAMESPACE, itemName);
+                    Pipliz.Log.WriteError("{0}: tryRemoveItem was called on {1} before Items master dictionary has been obtained. Cannot complete action.", MyMod.Data.NAMESPACE, itemName);
                     return false;
                 }
                 else
                 {
                     if (!Variables.itemsMaster.ContainsKey(itemName))
                     {
-                        Pipliz.Log.WriteError("{0}: tryRemoveItem was called on key {1} that was not found.", BrightExistence.ColonyShop.Data.NAMESPACE, itemName);
+                        Pipliz.Log.WriteError("{0}: tryRemoveItem was called on key {1} that was not found.", MyMod.Data.NAMESPACE, itemName);
                         return false;
                     }
                     else
                     {
-                        Pipliz.Log.Write("{0}: Item key {1} found, attempting removal", BrightExistence.ColonyShop.Data.NAMESPACE, itemName);
+                        Pipliz.Log.Write("{0}: Item key {1} found, attempting removal", MyMod.Data.NAMESPACE, itemName);
                         Variables.itemsMaster.Remove(itemName);
 
                         if (!Variables.itemsMaster.ContainsKey(itemName))
                         {
-                            Pipliz.Log.Write("{0}: Item {1} successfully removed.", BrightExistence.ColonyShop.Data.NAMESPACE, itemName);
+                            Pipliz.Log.Write("{0}: Item {1} successfully removed.", MyMod.Data.NAMESPACE, itemName);
                             return true;
                         }
                         else
                         {
-                            Pipliz.Log.Write("{0}: Item {1} removal was not successful for an unknown reason.", BrightExistence.ColonyShop.Data.NAMESPACE, itemName);
+                            Pipliz.Log.Write("{0}: Item {1} removal was not successful for an unknown reason.", MyMod.Data.NAMESPACE, itemName);
                             return false;
                         }
                     }
@@ -122,7 +122,7 @@ namespace BrightExistence.SimpleTools
             {
                 if (grpSideTop != null)
                 {
-                    Pipliz.Log.Write("{0} WARNING: Top texture of item {1} was assigned a (rotatable) texture group and is now being overwritten by a (non-rotatable) texture ID string.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                    Pipliz.Log.Write("{0} WARNING: Top texture of item {1} was assigned a (rotatable) texture group and is now being overwritten by a (non-rotatable) texture ID string.", MyMod.Data.NAMESPACE, this.Name);
                     grpSideTop = null;
                 }
                 topTexture = value;
@@ -151,7 +151,7 @@ namespace BrightExistence.SimpleTools
             {
                 if (grpSideBottom != null)
                 {
-                    Pipliz.Log.Write("{0} WARNING: Bottom texture of item {1} was assigned a (rotatable) texture group and is now being overwritten by a (non-rotatable) texture ID string.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                    Pipliz.Log.Write("{0} WARNING: Bottom texture of item {1} was assigned a (rotatable) texture group and is now being overwritten by a (non-rotatable) texture ID string.", MyMod.Data.NAMESPACE, this.Name);
                     grpSideBottom = null;
                 }
                 bottomTexture = value;
@@ -335,19 +335,19 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         /// <param name="strNamespace">Namespace of mod. Ex: DeveloperHandle.ModName Will be used as a prefix to generate item IDs.</param>
         /// <param name="strName">Name of item excluding any prefixes. Ex: MyItem NOT DeveloperHandle.ModName.MyItem</param>
-        public SimpleItem(string strName, bool dropsSelf = true, string strNAMESPACE = BrightExistence.ColonyShop.Data.NAMESPACE)
+        public SimpleItem(string strName, bool dropsSelf = true, string strNAMESPACE = MyMod.Data.NAMESPACE)
         {
             NAMESPACE = strNAMESPACE == null ? "" : strNAMESPACE;
             Name = (strName == null || strName.Length < 1) ? "NewItem" : strName;
             if (dropsSelf) Drops.Add(new DropItem(this.ID));
-            Pipliz.Log.Write("{0}: Initialized Item {1} (it is not yet registered.)", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Initialized Item {1} (it is not yet registered.)", MyMod.Data.NAMESPACE, this.Name);
             try
             {
                 if (!Variables.Items.Contains(this)) Variables.Items.Add(this);
             }
             catch (Exception)
             {
-                Pipliz.Log.Write("{0} : WARNING : Item {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} : WARNING : Item {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", MyMod.Data.NAMESPACE, this.Name);
             }
         }
 
@@ -359,14 +359,14 @@ namespace BrightExistence.SimpleTools
         {
             if (enabled)
             {
-                Pipliz.Log.Write("{0}: Attempting to register item {1}", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Attempting to register item {1}", MyMod.Data.NAMESPACE, this.Name);
                 if (this.isRotatable)
                 {
                     Rotate(items);
                 }
                 if (maskItem != null)
                 {
-                    Pipliz.Log.Write("{0}: Attempting to mask item {1} with {2}.", BrightExistence.ColonyShop.Data.NAMESPACE, this.ID, this.Name);
+                    Pipliz.Log.Write("{0}: Attempting to mask item {1} with {2}.", MyMod.Data.NAMESPACE, this.ID, this.Name);
                     // Masking is being used, see if there is an existing item to mask.
                     if (items.ContainsKey(this.ID))
                     {
@@ -376,12 +376,12 @@ namespace BrightExistence.SimpleTools
                         {
                             // Successfully retrieved item, overwrite its properties which are explicity specified in this object.
                             itemAsJSON(originalItem.description);
-                            Pipliz.Log.Write("{0}: Masking complete.", BrightExistence.ColonyShop.Data.NAMESPACE);
+                            Pipliz.Log.Write("{0}: Masking complete.", MyMod.Data.NAMESPACE);
                         }
                         else
                         {
                             // Item exists, but we can't retrieve it.
-                            Pipliz.Log.Write("{0}: Masking failed, item {1} exists but we could not retrieve it. Overwriting instead.", BrightExistence.ColonyShop.Data.NAMESPACE, this.ID);
+                            Pipliz.Log.Write("{0}: Masking failed, item {1} exists but we could not retrieve it. Overwriting instead.", MyMod.Data.NAMESPACE, this.ID);
                             // Remove existing item.
                             ItemHelper.tryRemoveItem(this.ID);
                             // Add this item.
@@ -392,19 +392,19 @@ namespace BrightExistence.SimpleTools
                     else
                     {
                         // Item did not already exist, let's add it.
-                        Pipliz.Log.Write("{0}: Masking was enabled, but masked item was not found. Adding {1} as a new item with ID {2}", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name, this.ID);
+                        Pipliz.Log.Write("{0}: Masking was enabled, but masked item was not found. Adding {1} as a new item with ID {2}", MyMod.Data.NAMESPACE, this.Name, this.ID);
                         items.Add(this.ID, thisItemRaw);
                     }
                 }
                 else
                 {
-                    Pipliz.Log.Write("{0}: Registering block {1} to ID {2}", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name, this.ID);
+                    Pipliz.Log.Write("{0}: Registering block {1} to ID {2}", MyMod.Data.NAMESPACE, this.Name, this.ID);
                     if (items.ContainsKey(this.ID))
                     {
                         // Item already exists, do we overwrite?
                         if (overwrite)
                         {
-                            Pipliz.Log.Write("{0}: Item {1} already exists, overwriting item entry.", BrightExistence.ColonyShop.Data.NAMESPACE, this.ID);
+                            Pipliz.Log.Write("{0}: Item {1} already exists, overwriting item entry.", MyMod.Data.NAMESPACE, this.ID);
                             // Remove existing item.
                             ItemHelper.tryRemoveItem(this.ID);
                             // Add this item.
@@ -413,7 +413,7 @@ namespace BrightExistence.SimpleTools
                         else
                         {
                             // Do nothing, it already exists and we're neither masking nor overwriting.
-                            Pipliz.Log.Write("{0}: Item {1} already exists, registration is not necessary and is being aborted.", BrightExistence.ColonyShop.Data.NAMESPACE, this.ID);
+                            Pipliz.Log.Write("{0}: Item {1} already exists, registration is not necessary and is being aborted.", MyMod.Data.NAMESPACE, this.ID);
                         }
                     }
                     else
@@ -422,11 +422,11 @@ namespace BrightExistence.SimpleTools
                         items.Add(this.ID, thisItemRaw);                    }
                 }
 
-                Pipliz.Log.Write("{0}: Block {1} registration complete.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Block {1} registration complete.", MyMod.Data.NAMESPACE, this.Name);
             }
             else
             {
-                Pipliz.Log.Write("{0}: Block {1} has been disabled, and will NOT be registered.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Block {1} has been disabled, and will NOT be registered.", MyMod.Data.NAMESPACE, this.Name);
             }
         }
 
@@ -437,7 +437,7 @@ namespace BrightExistence.SimpleTools
         {
             if (this.isCrate)
             {
-                Pipliz.Log.Write("{0}: Attempting to register {1} as a crate.", BrightExistence.ColonyShop.Data.NAMESPACE, this.ID);
+                Pipliz.Log.Write("{0}: Attempting to register {1} as a crate.", MyMod.Data.NAMESPACE, this.ID);
 
                 try
                 {
@@ -446,7 +446,7 @@ namespace BrightExistence.SimpleTools
                 }
                 catch (Exception ex)
                 {
-                    Pipliz.Log.Write("{0}: Crate registration error: {1}", BrightExistence.ColonyShop.Data.NAMESPACE, ex.Message);
+                    Pipliz.Log.Write("{0}: Crate registration error: {1}", MyMod.Data.NAMESPACE, ex.Message);
                 }
             }
         }
@@ -458,14 +458,14 @@ namespace BrightExistence.SimpleTools
         /// IBlockJobBase, INPCTypeDefiner, and have a default constructor. Should be called during the AfterDefiningNPCTypes callback.</typeparam>
         public void registerJob<T>() where T : ITrackableBlock, IBlockJobBase, INPCTypeDefiner, new()
         {
-            Pipliz.Log.Write("{0}: Attempting to register a job to block {1}", BrightExistence.ColonyShop.Data.NAMESPACE, this.ID);
+            Pipliz.Log.Write("{0}: Attempting to register a job to block {1}", MyMod.Data.NAMESPACE, this.ID);
             try
             {
                 BlockJobManagerTracker.Register<T>(this.ID);
             }
             catch (Exception ex)
             {
-                Pipliz.Log.Write("{0}: Registration error: {1}", BrightExistence.ColonyShop.Data.NAMESPACE, ex.Message);
+                Pipliz.Log.Write("{0}: Registration error: {1}", MyMod.Data.NAMESPACE, ex.Message);
             }
         }
 
@@ -477,7 +477,7 @@ namespace BrightExistence.SimpleTools
         {
             try
             {
-                Pipliz.Log.Write("{0}: Generating rotated variants of block {1}", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Generating rotated variants of block {1}", MyMod.Data.NAMESPACE, this.Name);
                 // Rotated x+
                 XP = new SimpleItem(this.Name + "x+", false, this.NAMESPACE);
                 XP.parentType = this.ID;
@@ -557,7 +557,7 @@ namespace BrightExistence.SimpleTools
                 // use proper mesh
                 ZM.mesh = this.meshZM;
 
-                Pipliz.Log.Write("{0}: Registering rotated variants of type {1}", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Registering rotated variants of type {1}", MyMod.Data.NAMESPACE, this.Name);
                 this.XM.registerItem(items);
                 this.XP.registerItem(items);
                 this.ZP.registerItem(items);
@@ -565,7 +565,7 @@ namespace BrightExistence.SimpleTools
             }
             catch (Exception ex)
             {
-                Pipliz.Log.Write("{0}: CRITICAL ERROR! Generating rotated variants of block {1} caused the following exception: {2}", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name, ex.Message);
+                Pipliz.Log.Write("{0}: CRITICAL ERROR! Generating rotated variants of block {1} caused the following exception: {2}", MyMod.Data.NAMESPACE, this.Name, ex.Message);
                 this.isRotatable = false;
             }
         }
@@ -583,7 +583,7 @@ namespace BrightExistence.SimpleTools
             {
                 if (XP == null || XM == null || ZP == null || ZM == null)
                 {
-                    Pipliz.Log.Write("{0}: ERROR! Item {1} is set as rotatable but the rotated variant types have not been populated.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                    Pipliz.Log.Write("{0}: ERROR! Item {1} is set as rotatable but the rotated variant types have not been populated.", MyMod.Data.NAMESPACE, this.Name);
                 }
                 else
                 {
@@ -633,7 +633,7 @@ namespace BrightExistence.SimpleTools
             if (sideRight != null) thisItemJSON.SetAs("sidex+", sideRight);
             if (onPlaceAudio != null) thisItemJSON.SetAs("onPlaceAudio", onPlaceAudio);
             if (onRemoveAudio != null) thisItemJSON.SetAs("onRemoveAudio", onRemoveAudio);
-            Pipliz.Log.Write("{0}: Created raw item type {1}.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Created raw item type {1}.", MyMod.Data.NAMESPACE, this.Name);
             return thisItemJSON;
         }
 
