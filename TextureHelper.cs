@@ -61,7 +61,7 @@ namespace BrightExistence.SimpleTools
             }
             catch (Exception)
             {
-                Pipliz.Log.Write("{0} : WARNING : Specific texture {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} : WARNING : Specific texture {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", MyMod.Data.NAMESPACE, this.Name);
             }
         }
 
@@ -84,23 +84,23 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         public void registerTexture()
         {
-            Pipliz.Log.Write("{0}: Registering specific texture as {1}", BrightExistence.ColonyShop.Data.NAMESPACE, this.ID);
+            Pipliz.Log.Write("{0}: Registering specific texture as {1}", MyMod.Data.NAMESPACE, this.ID);
             foreach (string S in new List <string> { this.AlbedoPath, this.EmissivePath, this.HeightPath, this.NormalPath})
             {
                 if (S != null)
                 {
                     if (System.IO.File.Exists(S))
                     {
-                        Pipliz.Log.Write("{0}: Looks good, albedo file exists.", BrightExistence.ColonyShop.Data.NAMESPACE);
+                        Pipliz.Log.Write("{0}: Looks good, albedo file exists.", MyMod.Data.NAMESPACE);
                     }
                     else
                     {
-                        Pipliz.Log.WriteError("{0}: ERROR! Registering texture to a file {1} which does not exist!", BrightExistence.ColonyShop.Data.NAMESPACE, S);
+                        Pipliz.Log.WriteError("{0}: ERROR! Registering texture to a file {1} which does not exist!", MyMod.Data.NAMESPACE, S);
                     }
                 }
             }
             ItemTypesServer.SetTextureMapping(this.ID, this.asTextureMapping());
-            Pipliz.Log.Write("{0}: Specific texture registered: {1}", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Specific texture registered: {1}", MyMod.Data.NAMESPACE, this.Name);
         }
     }
 
@@ -143,12 +143,12 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         /// <param name="strName">Name of texture, excluding any prefixes. Ex: myTexture NOT myHandle.myMod.myTexture</param>
         /// <param name="strNAMESPACE">Prefix used to generate ID. Ex: myHandle.myMod</param>
-        public TextureGroup(string strName, string strNAMESPACE = BrightExistence.ColonyShop.Data.NAMESPACE)
+        public TextureGroup(string strName, string strNAMESPACE = MyMod.Data.NAMESPACE)
         {
             Name = (strName == null || strName.Length < 1) ? "NewTexture" : strName;
             NAMESPACE = strNAMESPACE == null ? "" : strNAMESPACE;
             Default = new SpecificTexture(this.Name, this.NAMESPACE);
-            Pipliz.Log.Write("{0}: Initialized texturegroup {1}, it is not yet registered.", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Initialized texturegroup {1}, it is not yet registered.", MyMod.Data.NAMESPACE, this.Name);
         }
 
         /// <summary>
@@ -271,7 +271,7 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         public void registerGroup()
         {
-            Pipliz.Log.Write("{0}: Registering texture group {1}", BrightExistence.ColonyShop.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Registering texture group {1}", MyMod.Data.NAMESPACE, this.Name);
 
             this.Default.registerTexture();
             if (this.counter270d != null) counter270d.registerTexture();
