@@ -10,29 +10,31 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         /// <param name="recName">Name of recipe.</param>
         /// <returns>True if recipe was removed, False if recipe was not found or removal was not successful.</returns>
-        public static bool tryRemoveRecipe (string recName)
+        public static bool tryRemoveRecipe (string recName, string NAMESPACE = null)
         {
             try
             {
-                if (RecipeStorage.TryGetRecipe(recName, out Recipe Rec))
+            	Recipe Rec;
+            	if (RecipeStorage.TryGetRecipe(recName, out Rec))
                 {
-                    Pipliz.Log.Write("{0}: Recipe {1} found, attempting to remove.", MyMod.Data.NAMESPACE, Rec.Name);
+                    Pipliz.Log.Write("{0}: Recipe {1} found, attempting to remove.", NAMESPACE == null ? "" : NAMESPACE, Rec.Name);
                     RecipeStorage.Recipes.Remove(recName);
 
-                    if (!RecipeStorage.TryGetRecipe(recName, out Recipe Rec2))
+                    Recipe Rec2;
+                    if (!RecipeStorage.TryGetRecipe(recName, out Rec2))
                     {
-                        Pipliz.Log.Write("{0}: Recipe {1} successfully removed", MyMod.Data.NAMESPACE, Rec.Name);
+                        Pipliz.Log.Write("{0}: Recipe {1} successfully removed", NAMESPACE == null ? "" : NAMESPACE, Rec.Name);
                         return true;
                     }
                     else
                     {
-                        Pipliz.Log.Write("{0}: Recipe {1} removal failed for unknown reason.", MyMod.Data.NAMESPACE, Rec.Name);
+                        Pipliz.Log.Write("{0}: Recipe {1} removal failed for unknown reason.", NAMESPACE == null ? "" : NAMESPACE, Rec.Name);
                         return false;
                     }
                 }
                 else
                 {
-                    Pipliz.Log.Write("{0}: Recipe {1} not found.", MyMod.Data.NAMESPACE, recName);
+                    Pipliz.Log.Write("{0}: Recipe {1} not found.", NAMESPACE == null ? "" : NAMESPACE, recName);
                     return false;
                 }
             }
@@ -50,6 +52,11 @@ namespace BrightExistence.SimpleTools
         /// Name of Recipe, excluding prefixs. Ex: myRecipe instead of myHandle.myMod.myRecipe
         /// </summary>
         public string Name = "New Recipe";
+
+        /// <summary>
+        /// Local copy of mod NAMESPACE.
+        /// </summary>
+        protected string NAMESPACE;
 
         /// <summary>
         /// An InventoryItem list containing the items the user recieves when this recipe is completed. May be ignored if the constructor
@@ -127,19 +134,20 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         /// <param name="strName">Name of recipe excluding any prefixes. Ex: myRecipe NOT myHandle.myMod.myRecipe</param>
         /// <param name="strLimitType">The limitType, a.k.a. NPCTypeKey is essentially a group of recipes associated with a block and an NPC. Ex: pipliz.crafter</param>
-        public SimpleRecipe(string strName, string strLimitType = null)
+        public SimpleRecipe(string strName, string strNAMESPACE = null, string strLimitType = null)
         {
-            this.Name = strName == null ? MyMod.Data.NAMESPACE + "NewRecipe" : strName;
+            this.Name = strName == null ? "NewRecipe" : strName;
+            NAMESPACE = strNAMESPACE;
             this.limitType = strLimitType;
 
-            Pipliz.Log.Write("{0}: Initialized Recipe {1} (it is not yet registered.)", MyMod.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Initialized Recipe {1} (it is not yet registered.)", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             try
             {
                 if (!Variables.Recipes.Contains(this)) Variables.Recipes.Add(this);
             }
             catch (Exception)
             {
-                Pipliz.Log.Write("{0} : WARNING : Recipe {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} : WARNING : Recipe {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
 
             if (strLimitType == null) userCraftable = true;
@@ -154,22 +162,23 @@ namespace BrightExistence.SimpleTools
         {
             if (Item == null || Item.Name == null || Item.Name.Length < 1)
             {
-                throw new ArgumentException(MyMod.Data.NAMESPACE + ": Simple recipe cannot initialize when given a null Item or an Item with a Name of less than one character.");
+                throw new ArgumentException(NAMESPACE == null ? "" : NAMESPACE + ": Simple recipe cannot initialize when given a null Item or an Item with a Name of less than one character.");
             }
             else
             {
                 limitType = strLimitType;
+                this.NAMESPACE = Item.NAMESPACE;
                 this.Name = Item.Name;
                 addResult(Item);
 
-                Pipliz.Log.Write("{0}: Initialized Recipe {1} (it is not yet registered.)", MyMod.Data.NAMESPACE, Name);
+                Pipliz.Log.Write("{0}: Initialized Recipe {1} (it is not yet registered.)", NAMESPACE == null ? "" : NAMESPACE, Name);
                 try
                 {
                     if (!Variables.Recipes.Contains(this)) Variables.Recipes.Add(this);
                 }
                 catch (Exception)
                 {
-                    Pipliz.Log.Write("{0} : WARNING : Recipe {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", MyMod.Data.NAMESPACE, this.Name);
+                    Pipliz.Log.Write("{0} : WARNING : Recipe {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
                 }
 
                 if (strLimitType == null) userCraftable = true;
@@ -185,7 +194,7 @@ namespace BrightExistence.SimpleTools
         {
             if (itemKey == null || itemKey.Length < 1)
             {
-                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addRequirement() method was called but was given a null or invalid item key.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addRequirement() method was called but was given a null or invalid item key.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
             else
             {
@@ -202,12 +211,12 @@ namespace BrightExistence.SimpleTools
         {
             if (requiredItem != null && requiredItem.Name.Length > 0)
             {
-                Requirements.Add(new ItemShell(requiredItem.ID, amount));
+                Requirements.Add(new ItemShell(requiredItem, amount));
                 if (!requiredItem.enabled) this.enabled = false;
             }
             else
             {
-                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addRequirement() method was called but was given a null or invalid SimpleItem object.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addRequirement() method was called but was given a null or invalid SimpleItem object.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
         }
 
@@ -220,7 +229,7 @@ namespace BrightExistence.SimpleTools
         {
             if (itemKey == null || itemKey.Length < 1)
             {
-                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addResult() method was called but was given a null or invalid item key.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addResult() method was called but was given a null or invalid item key.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
             else
             {
@@ -237,12 +246,12 @@ namespace BrightExistence.SimpleTools
         {
             if (resultItem != null && resultItem.Name.Length > 0)
             {
-                Results.Add(new ItemShell(resultItem.ID, amount));
+                Results.Add(new ItemShell(resultItem, amount));
                 if (!resultItem.enabled) this.enabled = false;
             }
             else
             {
-                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addResult() method was called but was given a null or invalid SimpleItem object.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} WARNING: Recipe {1}'s addResult() method was called but was given a null or invalid SimpleItem object.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
         }
 
@@ -258,7 +267,7 @@ namespace BrightExistence.SimpleTools
                     // First remove any recipes we are replacing.
                     foreach (string deleteMe in Replaces)
                     {
-                        Pipliz.Log.Write("{0}: Recipe {1} is marked as replacing {2}, attempting to comply.", MyMod.Data.NAMESPACE, this.Name, deleteMe);
+                        Pipliz.Log.Write("{0}: Recipe {1} is marked as replacing {2}, attempting to comply.", NAMESPACE == null ? "" : NAMESPACE, this.Name, deleteMe);
                         RecipeHelper.tryRemoveRecipe(deleteMe);
                     }
 
@@ -267,17 +276,18 @@ namespace BrightExistence.SimpleTools
                     {
                         if (Variables.itemsMaster == null)
                         {
-                            Pipliz.Log.WriteError("{0}.SimpleRecipe.addRecipeToLimitType() has reached a critical error: 'Variables.itemsMaster' is not yet available. Recipe: {1}", MyMod.Data.NAMESPACE, this.Name);
+                            Pipliz.Log.WriteError("{0}.SimpleRecipe.addRecipeToLimitType() has reached a critical error: 'Variables.itemsMaster' is not yet available. Recipe: {1}", NAMESPACE == null ? "" : NAMESPACE, this.Name);
                         }
                         else
                         {
-                            if (Variables.itemsMaster.ContainsKey(I.strItemkey))
+                            string useKey = I.asSimpleItem == null ? I.strItemkey : I.asSimpleItem.ID;
+                            if (Variables.itemsMaster.ContainsKey(useKey))
                             {
-                                realResults.Add(new InventoryItem(I.strItemkey, I.intAmount));
+                                realResults.Add(new InventoryItem(useKey, I.intAmount));
                             }
                             else
                             {
-                                Pipliz.Log.WriteError("{0}: A problem occurred adding recipe RESULT {1} to recipe {2}, the item key was not found.", MyMod.Data.NAMESPACE, I.strItemkey, this.Name);
+                                Pipliz.Log.WriteError("{0}: A problem occurred adding recipe RESULT {1} to recipe {2}, the item key was not found.", NAMESPACE == null ? "" : NAMESPACE, I.strItemkey, this.Name);
                             }
                         }
                     }
@@ -285,17 +295,18 @@ namespace BrightExistence.SimpleTools
                     {
                         if (Variables.itemsMaster == null)
                         {
-                            Pipliz.Log.WriteError("{0}.SimpleRecipe.addRecipeToLimitType() has reached a critical error: 'Variables.itemsMaster' is not yet available. Recipe: {1}", MyMod.Data.NAMESPACE, this.Name);
+                            Pipliz.Log.WriteError("{0}.SimpleRecipe.addRecipeToLimitType() has reached a critical error: 'Variables.itemsMaster' is not yet available. Recipe: {1}", NAMESPACE == null ? "" : NAMESPACE, this.Name);
                         }
                         else
                         {
-                            if (Variables.itemsMaster.ContainsKey(I.strItemkey))
+                            string useKey = I.asSimpleItem == null ? I.strItemkey : I.asSimpleItem.ID;
+                            if (Variables.itemsMaster.ContainsKey(useKey))
                             {
-                                realRequirements.Add(new InventoryItem(I.strItemkey, I.intAmount));
+                                realRequirements.Add(new InventoryItem(useKey, I.intAmount));
                             }
                             else
                             {
-                                Pipliz.Log.WriteError("{0}: A problem occurred adding recipe REQUIREMENT {1} to recipe {2}, the item key was not found.", MyMod.Data.NAMESPACE, I.strItemkey, this.Name);
+                                Pipliz.Log.WriteError("{0}: A problem occurred adding recipe REQUIREMENT {1} to recipe {2}, the item key was not found.", NAMESPACE == null ? "" : NAMESPACE, I.strItemkey, this.Name);
                             }
                         }
                     }
@@ -304,17 +315,17 @@ namespace BrightExistence.SimpleTools
                     Recipe thisRecipe = new Recipe(this.fullName, this.realRequirements, this.realResults, this.defaultLimit, this.isOptional, this.defaultPriority);
 
                     // Commence registering it.
-                    Pipliz.Log.Write("{0}: Attempting to register recipe {1}", MyMod.Data.NAMESPACE, thisRecipe.Name);
+                    Pipliz.Log.Write("{0}: Attempting to register recipe {1}", NAMESPACE == null ? "" : NAMESPACE, thisRecipe.Name);
                     if (this.limitType != null)
                     {
                         if (isOptional)
                         {
-                            Pipliz.Log.Write("{0}: Attempting to register optional limit type recipe {1}", MyMod.Data.NAMESPACE, thisRecipe.Name);
+                            Pipliz.Log.Write("{0}: Attempting to register optional limit type recipe {1}", NAMESPACE == null ? "" : NAMESPACE, thisRecipe.Name);
                             RecipeStorage.AddOptionalLimitTypeRecipe(limitType, thisRecipe);
                         }
                         else
                         {
-                            Pipliz.Log.Write("{0}: Attempting to register default limit type recipe {1}", MyMod.Data.NAMESPACE, thisRecipe.Name);
+                            Pipliz.Log.Write("{0}: Attempting to register default limit type recipe {1}", NAMESPACE == null ? "" : NAMESPACE, thisRecipe.Name);
                             RecipeStorage.AddDefaultLimitTypeRecipe(limitType, thisRecipe);
                         }
                     }
@@ -322,18 +333,18 @@ namespace BrightExistence.SimpleTools
                     if (userCraftable)
                     {
                         Recipe playerRecipe = new Recipe("player." + this.Name, this.realRequirements, this.realResults, this.defaultLimit, this.isOptional);
-                        Pipliz.Log.Write("{0}: Attempting to register default player type recipe {1}", MyMod.Data.NAMESPACE, playerRecipe.Name);
+                        Pipliz.Log.Write("{0}: Attempting to register default player type recipe {1}", NAMESPACE == null ? "" : NAMESPACE, playerRecipe.Name);
                         RecipePlayer.AddDefaultRecipe(playerRecipe);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Pipliz.Log.WriteError("{0}: Error adding recipe: {1}", MyMod.Data.NAMESPACE, ex.Message);
+                    Pipliz.Log.WriteError("{0}: Error adding recipe: {1}", NAMESPACE == null ? "" : NAMESPACE, ex.Message);
                 }
             }
             else
             {
-                Pipliz.Log.Write("{0}: Recipe {1} has been disabled and will NOT be registered.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Recipe {1} has been disabled and will NOT be registered.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
         }
     }

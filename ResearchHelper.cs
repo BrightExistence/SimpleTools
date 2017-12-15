@@ -70,12 +70,12 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         /// <param name="strName">Name of research excluding prefixes. Ex: MyResearch NOT MyHandle.MyMod.MyResearch</param>
         /// <param name="strNAMESPACE">Prefix of research. Ex: 'MyHandle.MyMod'. Will use mod namespace if not provided.</param>
-        public SimpleResearchable(string strName, string strNAMESPACE = MyMod.Data.NAMESPACE)
+        public SimpleResearchable(string strName, string strNAMESPACE = null)
         {
             if (strName != null && strName.Length > 0) Name = strName;
             NAMESPACE = strNAMESPACE;
             Variables.Researchables.Add(this);
-            Pipliz.Log.Write("{0}: Initialized Researchable {1} (it is not yet registered.)", MyMod.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Initialized Researchable {1} (it is not yet registered.)", NAMESPACE == null ? "" : NAMESPACE, this.Name);
         }
 
         /// <summary>
@@ -90,28 +90,28 @@ namespace BrightExistence.SimpleTools
                 {
                     if (Variables.itemsMaster == null)
                     {
-                        Pipliz.Log.WriteError("{0} CRITICAL ERROR: SimpleResearchable {1} cannot register properly because 'Variables.itemsMaster' is still null.", MyMod.Data.NAMESPACE, this.Name);
+                        Pipliz.Log.WriteError("{0} CRITICAL ERROR: SimpleResearchable {1} cannot register properly because 'Variables.itemsMaster' is still null.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
                     }
                     else
                     {
-                        Pipliz.Log.Write("{0}: Converting shell references in researchable {1} to InventoryItem objects.", MyMod.Data.NAMESPACE, this.Name);
+                        Pipliz.Log.Write("{0}: Converting shell references in researchable {1} to InventoryItem objects.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
                         if (Variables.itemsMaster.ContainsKey(I.strItemkey))
                         {
                             Requirements.Add(new InventoryItem(I.strItemkey, I.intAmount));
                         }
                         else
                         {
-                            Pipliz.Log.Write("{0} Researchable {1} was given an item key '{2}' as an iteration requirement which was not found by the server.", MyMod.Data.NAMESPACE, this.Name, I.strItemkey);
+                            Pipliz.Log.Write("{0} Researchable {1} was given an item key '{2}' as an iteration requirement which was not found by the server.", NAMESPACE == null ? "" : NAMESPACE, this.Name, I.strItemkey);
                         }
                     }
                 }
 
                 ScienceManager.RegisterResearchable(this);
-                Pipliz.Log.Write("{0}: Researchable {1} has been registered with the ScienceManager.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Researchable {1} has been registered with the ScienceManager.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
             else
             {
-                Pipliz.Log.Write("{0}: Research {1} has been disabled, and will NOT be registered.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Research {1} has been disabled, and will NOT be registered.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
         }
 
@@ -124,7 +124,7 @@ namespace BrightExistence.SimpleTools
         {
             if (itemKey == null || itemKey.Length < 1)
             {
-                Pipliz.Log.Write("{0}: Research {1} was given a null or invalid item key.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Research {1} was given a null or invalid item key.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
             else
             {
@@ -141,7 +141,7 @@ namespace BrightExistence.SimpleTools
         {
             if (requiredItem == null || requiredItem.Name.Length < 1)
             {
-                Pipliz.Log.Write("{0}: Research {1} was given a null or invalid SimpleItem object.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0}: Research {1} was given a null or invalid SimpleItem object.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
             else
             {
@@ -272,7 +272,7 @@ namespace BrightExistence.SimpleTools
                 }
                 else
                 {
-                    throw new ArgumentException("{0}: strRecipeName parameter for Unlock object may not be left null.", MyMod.Data.NAMESPACE);
+                    throw new ArgumentException("Unlock: strRecipeName parameter for Unlock object may not be left null.");
                 }
             }
 
@@ -284,7 +284,7 @@ namespace BrightExistence.SimpleTools
             {
                 if (unlockMe == null)
                 {
-                    throw new ArgumentException("{0}: Unlock constructor argument unlockMe may not be null.", MyMod.Data.NAMESPACE);
+                    throw new ArgumentException("Unlock: Unlock constructor argument unlockMe may not be null.");
                 }
                 else
                 {

@@ -61,7 +61,7 @@ namespace BrightExistence.SimpleTools
             }
             catch (Exception)
             {
-                Pipliz.Log.Write("{0} : WARNING : Specific texture {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", MyMod.Data.NAMESPACE, this.Name);
+                Pipliz.Log.Write("{0} : WARNING : Specific texture {1} could not be automatically added to auto-load list. Make sure you explicityly added it.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
             }
         }
 
@@ -84,23 +84,23 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         public void registerTexture()
         {
-            Pipliz.Log.Write("{0}: Registering specific texture as {1}", MyMod.Data.NAMESPACE, this.ID);
+            Pipliz.Log.Write("{0}: Registering specific texture as {1}", NAMESPACE == null ? "" : NAMESPACE, this.ID);
             foreach (string S in new List <string> { this.AlbedoPath, this.EmissivePath, this.HeightPath, this.NormalPath})
             {
                 if (S != null)
                 {
                     if (System.IO.File.Exists(S))
                     {
-                        Pipliz.Log.Write("{0}: Looks good, albedo file exists.", MyMod.Data.NAMESPACE);
+                        Pipliz.Log.Write("{0}: Looks good, albedo file exists.", NAMESPACE == null ? "" : NAMESPACE);
                     }
                     else
                     {
-                        Pipliz.Log.WriteError("{0}: ERROR! Registering texture to a file {1} which does not exist!", MyMod.Data.NAMESPACE, S);
+                        Pipliz.Log.WriteError("{0}: ERROR! Registering texture to a file {1} which does not exist!", NAMESPACE == null ? "" : NAMESPACE, S);
                     }
                 }
             }
             ItemTypesServer.SetTextureMapping(this.ID, this.asTextureMapping());
-            Pipliz.Log.Write("{0}: Specific texture registered: {1}", MyMod.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Specific texture registered: {1}", NAMESPACE == null ? "" : NAMESPACE, this.Name);
         }
     }
 
@@ -127,28 +127,28 @@ namespace BrightExistence.SimpleTools
         /// <summary>
         /// The texture files rotated 90 degrees counter-clockwise.
         /// </summary>
-        protected SpecificTexture counter90d;
+        public SpecificTexture counter90d;
 
         /// <summary>
         /// The texture files rotated 180 degrees counter-clockwise.
         /// </summary>
-        protected SpecificTexture couter180d;
+        public SpecificTexture counter270d;
 
         /// <summary>
         /// The texture files rotated 270 degrees counter-clockwise.
         /// </summary>
-        protected SpecificTexture counter270d;
+        public SpecificTexture counter180d;
 
         /// <summary>
         /// </summary>
         /// <param name="strName">Name of texture, excluding any prefixes. Ex: myTexture NOT myHandle.myMod.myTexture</param>
         /// <param name="strNAMESPACE">Prefix used to generate ID. Ex: myHandle.myMod</param>
-        public TextureGroup(string strName, string strNAMESPACE = MyMod.Data.NAMESPACE)
+        public TextureGroup(string strName, string strNAMESPACE = null)
         {
             Name = (strName == null || strName.Length < 1) ? "NewTexture" : strName;
             NAMESPACE = strNAMESPACE == null ? "" : strNAMESPACE;
             Default = new SpecificTexture(this.Name, this.NAMESPACE);
-            Pipliz.Log.Write("{0}: Initialized texturegroup {1}, it is not yet registered.", MyMod.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Initialized texturegroup {1}, it is not yet registered.", NAMESPACE == null ? "" : NAMESPACE, this.Name);
         }
 
         /// <summary>
@@ -161,11 +161,11 @@ namespace BrightExistence.SimpleTools
             switch (facing)
             {
                 case Rotation.counter180d:
-                    return this.counter270d == null ? this.Default : this.counter270d;
+                    return this.counter180d == null ? this.Default : this.counter180d;
                 case Rotation.zero:
                     return this.Default;
                 case Rotation.counter270d:
-                    return this.couter180d == null ? this.Default : this.couter180d;
+                    return this.counter270d == null ? this.Default : this.counter270d;
                 case Rotation.counter90d:
                     return this.counter90d == null ? this.Default : this.counter90d;
                 default:
@@ -224,7 +224,27 @@ namespace BrightExistence.SimpleTools
                     }
                     break;
                 case Rotation.counter180d:
-                    if (this.counter270d == null) this.counter270d = new SpecificTexture(this.Name + "x-", this.NAMESPACE);
+                    if (this.counter180d == null) this.counter180d = new SpecificTexture(this.Name + "x-", this.NAMESPACE);
+                    switch (part)
+                    {
+                        case TexturePart.albedo:
+                            this.counter180d.AlbedoPath = path;
+                            break;
+                        case TexturePart.emissive:
+                            this.counter180d.EmissivePath = path;
+                            break;
+                        case TexturePart.height:
+                            this.counter180d.HeightPath = path;
+                            break;
+                        case TexturePart.normal:
+                            this.counter180d.NormalPath = path;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case Rotation.counter270d:
+                    if (this.counter270d == null) this.counter270d = new SpecificTexture(this.Name + "z-", this.NAMESPACE);
                     switch (part)
                     {
                         case TexturePart.albedo:
@@ -243,26 +263,6 @@ namespace BrightExistence.SimpleTools
                             break;
                     }
                     break;
-                case Rotation.counter270d:
-                    if (this.couter180d == null) this.couter180d = new SpecificTexture(this.Name + "z-", this.NAMESPACE);
-                    switch (part)
-                    {
-                        case TexturePart.albedo:
-                            this.couter180d.AlbedoPath = path;
-                            break;
-                        case TexturePart.emissive:
-                            this.couter180d.EmissivePath = path;
-                            break;
-                        case TexturePart.height:
-                            this.couter180d.HeightPath = path;
-                            break;
-                        case TexturePart.normal:
-                            this.couter180d.NormalPath = path;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
             }
         }
 
@@ -271,12 +271,12 @@ namespace BrightExistence.SimpleTools
         /// </summary>
         public void registerGroup()
         {
-            Pipliz.Log.Write("{0}: Registering texture group {1}", MyMod.Data.NAMESPACE, this.Name);
+            Pipliz.Log.Write("{0}: Registering texture group {1}", NAMESPACE == null ? "" : NAMESPACE, this.Name);
 
             this.Default.registerTexture();
-            if (this.counter270d != null) counter270d.registerTexture();
+            if (this.counter180d != null) counter180d.registerTexture();
             if (this.counter90d != null) counter90d.registerTexture();
-            if (this.couter180d != null) couter180d.registerTexture();
+            if (this.counter270d != null) counter270d.registerTexture();
         }
     }
 }
