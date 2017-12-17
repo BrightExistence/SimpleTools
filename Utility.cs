@@ -139,21 +139,19 @@ namespace BrightExistence.SimpleTools
 
                                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(text))
                                 {
-                                    Pipliz.Log.Write("{0}: Found mod localization file for '{1}' localization", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")");
                                     Localize(name, text, jsonFromMod);
                                 }
                             }
                         }
                         catch (System.Exception ex)
                         {
-                            Pipliz.Log.Write("{0}: Exception reading localization from {1}; {2}", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")");
+                            Pipliz.Log.WriteError(ex.Message);
                         }
                     }
                 }
             }
             catch (DirectoryNotFoundException)
             {
-                Pipliz.Log.Write("{0}: Localization directory not found at {1}", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")", Path.Combine(Variables.modDirectory, "localization"));
             }
         }
 
@@ -169,7 +167,6 @@ namespace BrightExistence.SimpleTools
             {
                 if (Server.Localization.Localization.LoadedTranslation == null)
                 {
-                    Pipliz.Log.Write("{0} :Unable to localize. Server.Localization.Localization.LoadedTranslation is null.", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")");
                 }
                 else
                 {
@@ -180,23 +177,17 @@ namespace BrightExistence.SimpleTools
                         {
                             foreach (KeyValuePair<string, JSONNode> modNode in jsonFromMod.LoopObject())
                             {
-                                Pipliz.Log.Write("{0} : Adding localization for '{1}' from '{2}'.", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")", modNode.Key, Path.Combine(locName, locFilename));
                                 AddRecursive(jsn, modNode);
                             }
                         }
-                        else
-                            Pipliz.Log.Write("{0}: Unable to localize. Localization '{0}' not found and is null.", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")");
                     }
-                    else
-                        Pipliz.Log.Write("{0}: Localization '{1}' not supported", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")");
                 }
 
-                Pipliz.Log.Write("{0}: Patched mod localization file '{1}/{2}'", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")", locName, locFilename);
 
             }
             catch (System.Exception ex)
             {
-                Pipliz.Log.WriteError(ex.ToString(), "{0}: Exception while localizing {1}", "SimpleTools v" + Variables.toolkitVersion + "(" + Variables.modDirectory == null ? "" : Variables.modDirectory + ")", Path.Combine(locName, locFilename));
+                Pipliz.Log.WriteError(ex.Message);
             }
         }
 
