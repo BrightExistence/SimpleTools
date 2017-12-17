@@ -1,54 +1,13 @@
 ﻿using BrightExistence.SimpleTools;
 
-namespace BrightExistence.SimpleTools
+namespace MyHandle.MyMod
 {
-    public static class UtilityFunctions
+    public interface ModData
     {
-        public static string iconPath(string iconName)
-        {
-            return "gamedata/mods/" + Data.NAMESPACE.Replace('.', '/') + "/icons/" + iconName;
-        }
-
-        public static string albedoPath(string textureName)
-        {
-            return "gamedata/mods/" + Data.NAMESPACE.Replace('.', '/') + "/textures/albedo/" + textureName;
-        }
-
-        public static string emissivepath(string textureName)
-        {
-            return "gamedata/mods/" + Data.NAMESPACE.Replace('.', '/') + "/textures/emissive/" + textureName;
-        }
-
-        public static string heightpath(string textureName)
-        {
-            return "gamedata/mods/" + Data.NAMESPACE.Replace('.', '/') + "/textures/height/" + textureName;
-        }
-
-        public static string normalpath(string textureName)
-        {
-            return "gamedata/mods/" + Data.NAMESPACE.Replace('.', '/') + "/textures/normal/" + textureName;
-        }
-    }
-
-
-    public static class Data
-    {
+        // !$!@!$@$ This approach won't work either.
+        
         //----------------- CONSTANTS ------------------
-        public const string NAMESPACE = "BrightExistence.BetterTrees";
-
-        // ----------------- DATA MEMBERS ------------------
-        // Declare mod assets like Items and Recipies below (as static) if you need them to reference each other later on.
-        // Ex: SimpleItem MyItem = new SimpleItem("MyItem");
-        // -------------------------------------------------
-
-        // (STATIC) SIMPLETEXTURE OBJECTS
-
-        // (STATIC) SIMPLEITEM OBJECTS
-
-        // (STATIC) SIMPLERECIPE OBJECTS
-
-        // (STATIC) SIMPLERESEARCH OBJECTS
-
+        public string myNAMESPACE();
 
         // ----------------- DATA ------------------
         /// <summary>
