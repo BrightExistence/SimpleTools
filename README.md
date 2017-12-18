@@ -1,4 +1,4 @@
 # SimpleTools
 A set of tools for making simple mods for Colony Survival easy.
 
-To use, include the DLL file downloaded from releases as a reference in your project, and import the main.cs file as code. Import the modInfo.json as well, setting its 'copy to output directory' setting to 'always'. Change all references in main.cs and modinfo.json from "MyHandle.MyMod" to an appropriate name.
+To use, add all included files to your project and start populating the Main.cs file with your items, recipes, and so forth! This assumes that you've followed the beginner's guide to modding here: https://github.com/pipliz/ColonySurvival/wiki/Beginners-Guide-to-Modding
