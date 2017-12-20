@@ -28,7 +28,7 @@ namespace MyHandle.MyMod
             Pipliz.Log.Write("Thanks and credit to Pandaros for the localization routines.");
 
             // capture mod directory
-            Variables.modDirectory = path;
+            Variables.modDirectory = Path.GetDirectoryName(path);
         }
 
         /// <summary>
