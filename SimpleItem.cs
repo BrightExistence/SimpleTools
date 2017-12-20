@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pipliz.APIProvider.Jobs;
 using Pipliz.JSON;
+using Pipliz.Mods.APIProvider.Jobs;
 
 namespace BrightExistence.SimpleTools
 {

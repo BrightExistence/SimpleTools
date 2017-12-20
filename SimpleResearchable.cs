@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pipliz.APIProvider.Science;
 using Server.Science;
 
 namespace BrightExistence.SimpleTools
@@ -51,9 +50,14 @@ namespace BrightExistence.SimpleTools
         public List<ItemShell> IterationRequirements = new List<ItemShell>();
 
         /// <summary>
-        /// List of Unlock objects describing specific recipies which will be enable automatically when this researchable is completed in-game.
+        /// List of OptionalRecReference objects describing specific recipies which will be enable automatically when this researchable is completed in-game.
         /// </summary>
-        public List<Unlock> Unlocks = new List<Unlock>();
+        public List<OptionalRecReference> Unlocks = new List<OptionalRecReference>();
+
+        /// <summary>
+        /// List of OptionalRecReference objects describing specific recipes which should be hidden when this research is completed.
+        /// </summary>
+        public List<OptionalRecReference> Locks = new List<OptionalRecReference>();
 
         /// <summary>
         /// Set to false in order to disable auto-registration of this Research.
@@ -200,7 +204,7 @@ namespace BrightExistence.SimpleTools
         {
             if (reason == EResearchCompletionReason.ProgressCompleted)
             {
-                foreach (Unlock U in Unlocks)
+                foreach (OptionalRecReference U in Unlocks)
                 {
                     if (U.limitType != null)
                     {
@@ -211,13 +215,25 @@ namespace BrightExistence.SimpleTools
                         RecipePlayer.UnlockOptionalRecipe(manager.Player, U.PlayerCrafted);
                     }
                 }
+
+                foreach (OptionalRecReference L in Locks)
+                {
+                    if (L.limitType != null)
+                    {
+                        RecipeStorage.GetPlayerStorage(manager.Player).SetRecipeAvailability(L.NPCCrafted, false, L.limitType);
+                    }
+                    if (L.PlayerCrafted != null)
+                    {
+                        // need to figure out how to do this.
+                    }
+                }
             }
         }
 
         /// <summary>
         /// Utility class for describing what recipes this research unlocks when it is completed.
         /// </summary>
-        public class Unlock
+        public class OptionalRecReference
         {
             /// <summary>
             /// Recipe name excluding prefix. Ex: SpecifiedRecipe NOT Handle.LimitType.Recipe
@@ -250,7 +266,7 @@ namespace BrightExistence.SimpleTools
             /// </summary>
             /// <param name="strRecipeName">Name of recipe excluding prefix. Ex: TargetedRecipe NOT Handle.LimitType.TargetedRecipe OR Player.TargetedRecipe</param>
             /// <param name="strLimitType">The limit type to which the recipe was added by SimpleRecipe. My be left null.</param>
-            public Unlock(string strRecipeName, string strLimitType = null)
+            public OptionalRecReference(string strRecipeName, string strLimitType = null)
             {
                 if (strRecipeName != null)
                 {
@@ -275,7 +291,7 @@ namespace BrightExistence.SimpleTools
             /// 
             /// </summary>
             /// <param name="unlockMe">A SimpleRecipe object from which to build data.</param>
-            public Unlock(SimpleRecipe unlockMe)
+            public OptionalRecReference(SimpleRecipe unlockMe)
             {
                 if (unlockMe == null)
                 {

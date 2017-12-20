@@ -11,14 +11,14 @@ namespace BrightExistence.SimpleTools
         /// <summary>
         /// Stores a reference to the mod's directory.
         /// </summary>
-        public static string modDirectory = "gamedata/mods/MyHandle/MyMod";
+        public static string modDirectory = "";
         /// <summary>
         /// Stores a reference to the server's dictionary of raw item types.
         /// </summary>
         public static Dictionary<string, ItemTypesServer.ItemTypeRaw> itemsMaster;
         protected const int simpleToolsMajor = 0;
         protected const int simpleToolsMinor = 3;
-        protected const int simpleToolsBuild = 0;
+        protected const int simpleToolsBuild = 1;
         /// <summary>
         /// The version of the toolkit being used.
         /// </summary>

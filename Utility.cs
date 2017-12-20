@@ -10,21 +10,6 @@ namespace BrightExistence.SimpleTools
     /// </summary>
     public static class UtilityFunctions
     {
-        /// <summary>
-        /// OnAssemblyLoaded callback entrypoint. Used for mod configuration / setup.
-        /// </summary>
-        /// <param name="path">The starting point of mod file structure.</param>
-        [ModLoader.ModCallback(ModLoader.EModCallbackType.OnAssemblyLoaded, "BrightExistence.SimpleTools.OnAssemblyLoaded")]
-        public static void OnAssemblyLoaded(string path)
-        {
-            // Announce ourselves.
-            Pipliz.Log.Write("{0} loading.", path);
-            Pipliz.Log.Write("Built using SimpleTools version {0}", Variables.toolkitVersion);
-            Pipliz.Log.Write("Thanks and credit to Pandaros for the localization routines.");
-
-            // capture mod directory
-            Variables.modDirectory = path;
-        }
 
         /// <summary>
         /// Registers all SimpleTexture objects. Should be called within the callback:
@@ -234,7 +219,14 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string iconPath(string iconName, string NAMESPACE)
         {
-            return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/icons/" + iconName;
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            {
+                return Path.Combine(Variables.modDirectory, "/icons/" + iconName).Replace("\\", "/");
+            }
+            else
+            {
+                return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/icons/" + iconName;
+            }
         }
 
         /// <summary>
@@ -245,7 +237,14 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string albedoPath(string textureName, string NAMESPACE)
         {
-            return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/textures/albedo/" + textureName;
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            {
+                return Path.Combine(Variables.modDirectory, "/textures/albedo/" + textureName).Replace("\\", "/");
+            }
+            else
+            {
+                return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/textures/albedo/" + textureName;
+            }
         }
 
         /// <summary>
@@ -256,7 +255,14 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string emissivepath(string textureName, string NAMESPACE)
         {
-            return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/textures/emissive/" + textureName;
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            {
+                return Path.Combine(Variables.modDirectory, "/textures/emissive/" + textureName).Replace("\\", "/");
+            }
+            else
+            {
+                return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/textures/emissive/" + textureName;
+            }
         }
 
         /// <summary>
@@ -267,7 +273,14 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string heightpath(string textureName, string NAMESPACE)
         {
-            return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/textures/height/" + textureName;
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            {
+                return Path.Combine(Variables.modDirectory, "/textures/height/" + textureName).Replace("\\", "/");
+            }
+            else
+            {
+                return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/textures/height/" + textureName;
+            }
         }
 
         /// <summary>
@@ -278,7 +291,14 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string normalpath(string textureName, string NAMESPACE)
         {
-            return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/textures/normal/" + textureName;
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            {
+                return Path.Combine(Variables.modDirectory, "/textures/normal/" + textureName).Replace("\\", "/");
+            }
+            else
+            {
+                return "gamedata/mods/" + NAMESPACE.Replace('.', '/') + "/textures/normal/" + textureName;
+            }
         }
 
         /// <summary>
