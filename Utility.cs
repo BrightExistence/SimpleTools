@@ -219,9 +219,9 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string iconPath(string iconName, string NAMESPACE)
         {
-            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 1)
             {
-                return Path.Combine(Variables.modDirectory, "/icons/" + iconName).Replace("\\", "/");
+                return (Variables.modDirectory + "/icons/" + iconName).Replace("\\", "/");
             }
             else
             {
@@ -237,9 +237,9 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string albedoPath(string textureName, string NAMESPACE)
         {
-            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 1)
             {
-                return Path.Combine(Variables.modDirectory, "/textures/albedo/" + textureName).Replace("\\", "/");
+                return (Variables.modDirectory + "/textures/albedo/" + textureName).Replace("\\", "/");
             }
             else
             {
@@ -255,9 +255,9 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string emissivepath(string textureName, string NAMESPACE)
         {
-            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 1)
             {
-                return Path.Combine(Variables.modDirectory, "/textures/emissive/" + textureName).Replace("\\", "/");
+                return (Variables.modDirectory + "/textures/emissive/" + textureName).Replace("\\", "/");
             }
             else
             {
@@ -273,9 +273,9 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string heightpath(string textureName, string NAMESPACE)
         {
-            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 1)
             {
-                return Path.Combine(Variables.modDirectory, "/textures/height/" + textureName).Replace("\\", "/");
+                return (Variables.modDirectory + "/textures/height/" + textureName).Replace("\\", "/");
             }
             else
             {
@@ -291,9 +291,9 @@ namespace BrightExistence.SimpleTools
         /// <returns>A completed relative path to the icon file.</returns>
         public static string normalpath(string textureName, string NAMESPACE)
         {
-            if (Variables.modDirectory != null && Variables.modDirectory.Length > 0)
+            if (Variables.modDirectory != null && Variables.modDirectory.Length > 1)
             {
-                return Path.Combine(Variables.modDirectory, "/textures/normal/" + textureName).Replace("\\", "/");
+                return (Variables.modDirectory + "/textures/normal/" + textureName).Replace("\\", "/");
             }
             else
             {
