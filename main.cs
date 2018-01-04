@@ -15,6 +15,9 @@ namespace MyHandle.MyMod
         /// Make sure this string matches the namespace above, or these methods will not execute.
         /// </summary>
         const string NAMESPACE = "MyHandle.MyMod";
+	    
+	// DECLARE ASSETS HERE
+        //public static SpecificTexture MyTexture = new SpecificTexture("MyTexture", NAMESPACE);
         
         /// <summary>
         /// OnAssemblyLoaded callback entrypoint. Used for mod configuration / setup.
