@@ -15,9 +15,16 @@ namespace MyHandle.MyMod
         /// Make sure this string matches the namespace above, or these methods will not execute.
         /// </summary>
         const string NAMESPACE = "MyHandle.MyMod";
-	    
-	// DECLARE ASSETS HERE
-        //public static SpecificTexture MyTexture = new SpecificTexture("MyTexture", NAMESPACE);
+
+        // DECLARE ASSETS HERE
+        // example assets:
+        public static SpecificTexture MyTexture = new SpecificTexture("MyTexture", NAMESPACE);
+        public static SimpleItem MyItem = new SimpleItem("MyItemName", NAMESPACE, true);
+        public static SimpleRecipe MyItemRecipe = new SimpleRecipe(MyItem, "pipliz.crafter");
+        /* Note that the above example recipe was given a limit type of 'pipliz.crafter' which will add the
+         * recipe to the workbench recipe list. You could give it an entirely different limit type, or no
+         * limit type at all for a recipe which can only be crafted by hand.
+         */
         
         /// <summary>
         /// OnAssemblyLoaded callback entrypoint. Used for mod configuration / setup.
@@ -41,7 +48,14 @@ namespace MyHandle.MyMod
         [ModLoader.ModCallback(ModLoader.EModCallbackType.AfterSelectedWorld, NAMESPACE + ".afterSelectedWorld"), ModLoader.ModCallbackProvidesFor("pipliz.server.registertexturemappingtextures")]
         public static void afterSelectedWorld()
         {
-            // make your textures
+            // POPULATE TEXTURE DATA
+            // example texture
+            MyTexture.AlbedoPath = UtilityFunctions.albedoPath("MyTextureFile.png", NAMESPACE);
+            /* Note that the above lines assumes that the .png file will be located in a "textures/albedo"
+             * folder within the mod folder. Height, emissive, and normal .png files may be used to augment
+             * the texture in the same way.
+             */
+            // your texture here
 
             // register them
             UtilityFunctions.registerTextures();
@@ -53,7 +67,15 @@ namespace MyHandle.MyMod
         [ModLoader.ModCallback(ModLoader.EModCallbackType.AfterAddingBaseTypes, NAMESPACE == null ? "" : NAMESPACE + ".afterAddingBaseTypes")]
         public static void afterAddingBaseTypes(Dictionary<string, ItemTypesServer.ItemTypeRaw> items)
         {
-            // make your items
+            // POPULATE ITEM DATA
+            // example item
+            MyItem.isSolid = true;
+            MyItem.isPlaceable = true;
+            MyItem.Icon = UtilityFunctions.iconPath("MyItemIcon.png", NAMESPACE);
+            /* Note that the iconPath() method assumes the icon file will be located in an
+             * 'icons' folder within the mod folder.
+             */
+            // your item here
 
             // register them
             UtilityFunctions.registerItems(items);
@@ -65,7 +87,15 @@ namespace MyHandle.MyMod
         [ModLoader.ModCallback(ModLoader.EModCallbackType.AfterItemTypesDefined, NAMESPACE == null ? "" : NAMESPACE + ".AfterItemTypesDefined")]
         public static void AfterItemTypesDefined()
         {
-            // make your recipes
+            // POPULATE RECIPE DATA
+            // example recipe
+            MyItemRecipe.userCraftable = true;
+            MyItemRecipe.Requirements.Add(new ItemShell("planks", 2));
+            /* Note that the example used an 'ItemShell' object to represent an existing in-game item,
+             * but you could pass it an item you created, as-in:
+             * MyItemRecipe.addRequirement(MyItem, 1);
+             */
+            // your recipe here
 
             // register them
             UtilityFunctions.recipesAndInventoryBlocks();
@@ -90,7 +120,7 @@ namespace MyHandle.MyMod
         [ModLoader.ModCallback(ModLoader.EModCallbackType.OnAddResearchables, NAMESPACE == null ? "" : NAMESPACE + ".OnAddResearchables")]
         public static void OnAddResearchables ()
         {
-            // make your researchables
+            // POPULATE RESEARCHABLES HERE
 
             // register them
             UtilityFunctions.registerResearchables();
@@ -106,6 +136,11 @@ namespace MyHandle.MyMod
         {
             // let simpletools do this
             UtilityFunctions.loadLocalizationFiles();
+            /* Note that your localizations should be in a 'translation.json' file located
+             * within an appropriate subdirectory under the 'localization' folder in your
+             * mod's folder. Ex:
+             * MyHandle/MyMod/localization/en-US/translation.json
+             */
         }        
     }
 }
